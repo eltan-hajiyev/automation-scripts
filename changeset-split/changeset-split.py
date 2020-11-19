@@ -77,7 +77,7 @@ def getName(e):
 
 
 with open(changeLogFileYaml, 'r') as stream:
-    os.mkdir(directoryForSplitedFiles)
+    os.makedirs(directoryForSplitedFiles, exist_ok=True)
     
     changeSetList = yaml.safe_load(stream)
     
