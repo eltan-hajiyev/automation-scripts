@@ -30,7 +30,7 @@ if not authorName:
     print("-a : Author name. Required.")
     print(f"-l : Generated change log file name. Default value: '{directoryForSplitedFiles}'")
     print(f"-d : Directory for splited files. Default value: '{changeLogFileYaml}'")
-    print(f"Example: changeset-split.py -a EltanHajiyev -l {changeLogFileYaml} -d {directoryForSplitedFiles}")
+    print(f"Example: changeset-split.py -a AuthorName -l {changeLogFileYaml} -d {directoryForSplitedFiles}")
     exit();
 
 def getValue(obj, keys):
