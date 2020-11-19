@@ -8,4 +8,7 @@
 -l : Generated change log file name. Default value: './changelogfolder'
 -d : Directory for splited files. Default value: 'db.changelog.yaml'
 
-Example: changeset-split.py -a AuthorName -l db.changelog.yaml -d ./changelogfolder
+Example: 
+```sh
+changeset-split.py -a AuthorName -l db.changelog.yaml -d ./changelogfolder
+```
