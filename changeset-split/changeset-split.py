@@ -11,6 +11,7 @@ from datetime import date
 directoryForSplitedFiles = "./changelogfolder"
 changeLogFileYaml = "db.changelog.yaml"
 authorName = ""
+curDate = date.today().strftime("%Y%m%d")
 
 try:
     v1 = ""
@@ -28,8 +29,8 @@ except:
 if not authorName:
     print("Please type 'Author name' and 'File name'! Supports only 'yaml' file.")
     print("-a : Author name. Required.")
-    print(f"-l : Generated change log file name. Default value: '{directoryForSplitedFiles}'")
-    print(f"-d : Directory for splited files. Default value: '{changeLogFileYaml}'")
+    print(f"-l : Generated change log file name. Default value: '{changeLogFileYaml}'")
+    print(f"-d : Directory for splited files. Default value: '{directoryForSplitedFiles}'")
     print(f"Example: changeset-split.py -a AuthorName -l {changeLogFileYaml} -d {directoryForSplitedFiles}")
     exit();
 
@@ -44,34 +45,34 @@ def getValue(obj, keys):
 
 
 def getName(e):
-    prefix = date.today().strftime("%Y%m%d") + '-'
+    prefix = curDate + '-'
     t = getValue(e, ['changeSet', 'changes', 0, 'createTable', 'tableName'])
     if t:
-        return prefix + "010-create-table-" + t
+        return prefix + "10-create-table-" + t
+        
+    t = getValue(e, ['changeSet', 'changes', 0, 'createSequence', 'sequenceName'])
+    if t:
+        return prefix + "20-create-sequence"
 
     t = getValue(e, ['changeSet', 'changes', 0, 'createIndex', 'tableName'])
     if t:
-        return prefix + "010-create-table-" + t
+        return prefix + "20-create-index"
         
     t = getValue(e, ['changeSet', 'changes', 0, 'addUniqueConstraint', 'tableName'])
     if t:
-        return prefix + "010-create-table-" + t
-        
+        return prefix + "30-add-unique-constraints" + t
+
     t = getValue(e, ['changeSet', 'changes', 0, 'addForeignKeyConstraint', 'baseTableName'])
     if t:
-        return prefix + "010-create-table-" + t
-
-    t = getValue(e, ['changeSet', 'changes', 0, 'createSequence', 'sequenceName'])
-    if t:
-        return prefix + "030-create-sequence"
+        return prefix + "40-add-foreign-key"
 
     t = getValue(e, ['changeSet', 'changes', 0, 'createView', 'viewName'])
     if t:
-        return prefix + "040-create-view-" + t
+        return prefix + "60-create-view"
         
     t = getValue(e, ['changeSet', 'changes', 0, 'createProcedure', 'procedureName'])
     if t:
-        return prefix + "050-create-procedure-" + t
+        return prefix + "70-create-procedure-" + t
 
     return ""
 
@@ -82,6 +83,7 @@ with open(changeLogFileYaml, 'r') as stream:
     changeSetList = yaml.safe_load(stream)
     
     changeSetListTmp = {}
+    changeSetIndex = 0;
     for e in changeSetList['databaseChangeLog']:
         fileName = getName(e).replace("_", "-").lower()
         if not fileName:
@@ -90,7 +92,10 @@ with open(changeLogFileYaml, 'r') as stream:
 
         if (not getValue(changeSetListTmp, [fileName])):
             changeSetListTmp[fileName] = []
+        
+        changeSetIndex += 1
         e['changeSet']['author'] = authorName
+        e['changeSet']['id'] = curDate + "-" + str(changeSetIndex)
         changeSetListTmp[fileName].append(e)
 
     for k in changeSetListTmp:
